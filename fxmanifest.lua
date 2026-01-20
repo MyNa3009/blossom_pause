@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'BlossomV'
 description 'Modern Pause Menu'
-version '1.0.0'
+version '1.1.0'
 
 ui_page 'html/index.html'
 
