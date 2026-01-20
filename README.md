@@ -11,3 +11,5 @@ It fixes the map bug and includes anti-spam protection.
 3. Edit `config.lua`.
 
 **License:** GNU GPLv3
+
+Framework: Standalone
