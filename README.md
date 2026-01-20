@@ -5,7 +5,7 @@ It fixes the map bug and includes anti-spam protection.
 
 **Discord Support:** (https://discord.gg/VUdFdARrWd)
 
-**Folder Name:** # blossom_pause
+**Folder Name:** **blossom_pause**
 
 ## Installation
 1. Put the folder into `resources`.
