@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pause Menu</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #ffffff;
+            --accent-color: #3b82f6;
+            --text-glow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: transparent;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #ui-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: none;
+            align-items: center;
+        }
+
+        .menu-sidebar {
+            width: 700px;
+            height: 100vh;
+            background: linear-gradient(90deg, rgba(20, 20, 20, 0.95) 0%, rgba(20, 20, 20, 0.9) 50%, rgba(20, 20, 20, 0.7) 75%, rgba(0,0,0,0) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 100px;
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .slide-in {
+            animation: slideInLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .slide-out {
+            animation: slideOutLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes slideInLeft {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutLeft {
+            0% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(-100%); opacity: 0; }
+        }
+
+        .server-title {
+            color: var(--primary-color);
+            font-weight: 800;
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 5px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .server-subtitle {
+            color: rgba(255,255,255,0.5);
+            font-weight: 400;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 70px;
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-align: left;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            width: fit-content;
+        }
+
+        .btn i {
+            font-size: 1.3rem;
+            width: 35px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .btn:hover {
+            color: #fff;
+            transform: translateX(15px);
+            text-shadow: var(--text-glow);
+        }
+
+        .btn:hover i {
+            transform: scale(1.1);
+            color: var(--primary-color);
+        }
+
+        .btn:hover::after { width: 100%; }
+
+        .btn-quit:hover, .btn-quit:hover i { color: #ff4757; }
+        .btn-quit:hover::after { background: #ff4757; box-shadow: 0 0 15px #ff4757; }
+
+        .footer-info {
+            position: absolute;
+            bottom: 30px;
+            left: 100px;
+            color: rgba(255,255,255,0.2);
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .spacer { height: 30px; }
+    </style>
+</head>
+<body>
+    <div id="ui-container">
+        <div class="menu-sidebar" id="sidebar">
+            <div class="server-title" id="title">Pause</div>
+            <div class="server-subtitle" id="subtitle">Game Paused</div>
+
+            <div class="nav-items" id="nav-items"></div>
+
+            <div class="footer-info" id="footer">SERVER UI</div>
+        </div>
+    </div>
+
+    <script>
+        const resourceName = window.GetParentResourceName ? window.GetParentResourceName() : 'blossom_pause';
+        let isClosing = false;
+
+        const container = document.getElementById('ui-container');
+        const sidebar = document.getElementById('sidebar');
+
+        window.addEventListener('message', (event) => {
+            const data = event.data || {};
+
+            if (data.action === "open" && data.config) {
+                if (isClosing) return;
+
+                buildMenu(data.config);
+
+                container.style.display = 'flex';
+                sidebar.classList.remove('slide-out');
+                sidebar.classList.add('slide-in');
+            }
+            else if (data.action === "close") {
+                if (isClosing) return;
+
+                isClosing = true;
+                sidebar.classList.remove('slide-in');
+                sidebar.classList.add('slide-out');
+
+                setTimeout(() => {
+                    container.style.display = 'none';
+                    sidebar.classList.remove('slide-out');
+                    isClosing = false;
+                }, 480);
+            }
+            else if (data.action === "hide") {
+                container.style.display = 'none';
+                sidebar.classList.remove('slide-in');
+                sidebar.classList.remove('slide-out');
+            }
+            else if (data.action === "openExternal" && data.url) {
+                window.invokeNative('openUrl', data.url);
+            }
+        });
+
+        function buildMenu(config) {
+            if (!config) return;
+
+            document.getElementById('title').innerText = config.ServerTitle || 'Pause';
+            document.getElementById('subtitle').innerText = config.ServerSubtitle || '';
+            document.getElementById('footer').innerText = config.FooterVersion || '';
+
+            if (config.Colors) {
+                if (config.Colors.primary) document.documentElement.style.setProperty('--primary-color', config.Colors.primary);
+                if (config.Colors.accent) document.documentElement.style.setProperty('--accent-color', config.Colors.accent);
+            }
+
+            const navContainer = document.getElementById('nav-items');
+            navContainer.innerHTML = '';
+
+            let spacerAdded = false;
+
+            (config.Buttons || []).forEach((btnData) => {
+                if (btnData.isQuit && !spacerAdded) {
+                    const spacer = document.createElement('div');
+                    spacer.className = 'spacer';
+                    navContainer.appendChild(spacer);
+                    spacerAdded = true;
+                }
+
+                const btn = document.createElement('button');
+                btn.className = btnData.isQuit ? 'btn btn-quit' : 'btn';
+                btn.innerHTML = `<i class="${btnData.icon || ''}"></i> ${btnData.label || ''}`;
+
+                btn.onclick = () => {
+                    if (isClosing) return;
+
+                    if (btnData.link) {
+                        post('openLink', { url: btnData.link });
+                    } else {
+                        post(btnData.action || 'close', {});
+                    }
+                };
+
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function post(endpoint, data) {
+            fetch(`https://${resourceName}/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data || {})
+            }).catch(() => {});
+        }
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Escape') {
+                if (!isClosing) post('close', {});
+            }
+        });
+    </script>
+</body>
+</html>
