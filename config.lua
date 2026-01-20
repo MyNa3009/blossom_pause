@@ -1,10 +1,11 @@
+-- config.lua
 Config = {}
 
 -- Main menu title
-Config.ServerTitle = "Pause Menu"
+Config.ServerTitle = "Pause"
 
 -- Subtitle below the main title
-Config.ServerSubtitle = "Game is Paused"
+Config.ServerSubtitle = "Game Paused"
 
 -- Footer text at the bottom (version info, etc.)
 Config.FooterVersion = "SERVER UI VERSION 2.1"
@@ -13,12 +14,12 @@ Config.FooterVersion = "SERVER UI VERSION 2.1"
 -- Each button can have:
 -- label: Display text
 -- icon: Font Awesome icon class
--- action: Callback action name (resume, map, quit, close)
+-- action: Callback action name (resume, map, settings, quit, close)
 -- link: External URL to open
 -- isQuit: Adds spacing before button and special styling
 Config.Buttons = {
     {
-        label = "Continue",
+        label = "Resume",
         icon = "fa-solid fa-play",
         action = "resume"
     },
@@ -28,17 +29,22 @@ Config.Buttons = {
         action = "map"
     },
     {
+        label = "Settings",
+        icon = "fa-solid fa-gear",
+        action = "settings"
+    },
+    {
         label = "Discord",
         icon = "fa-brands fa-discord",
-        link = "https://discord.gg/beispiel"
+        link = "https://discord.gg/example"
     },
     {
-        label = "Tebex",
+        label = "Shop",
         icon = "fa-solid fa-gem",
-        link = "https://shop.beispiel.de"
+        link = "https://shop.example.com"
     },
     {
-        label = "Leave",
+        label = "Disconnect",
         icon = "fa-solid fa-right-from-bracket",
         action = "quit",
         isQuit = true
@@ -46,8 +52,7 @@ Config.Buttons = {
 }
 
 -- Color customization
--- primary: Main accent color for highlights and glows
--- accent: Secondary accent color (currently unused in design)
+-- primary: Main accent color for highlights, glows, and hover effects
 Config.Colors = {
     primary = "#E24997"
 }
